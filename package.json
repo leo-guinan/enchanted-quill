@@ -1,0 +1,14 @@
+{
+  "name": "enchanted-quill",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The enchanted quill from Future Radio: Hershey Script, written stroke by stroke, as a page and as frame-exact video.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node tools/build-demo.mjs",
+    "render": "node tools/render.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": { "playwright": "^1.50.0" }
+}

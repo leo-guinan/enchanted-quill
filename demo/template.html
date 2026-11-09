@@ -1,0 +1,130 @@
+<title>The Quill Says Hello</title>
+<!-- built from demo/template.html by tools/build-demo.mjs: edit the template, not this file -->
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=VT323&display=swap" rel="stylesheet">
+<style>
+/* Layout: one sheet of the Enchanted Notebook on its desk; the quill writes on the sheet, the controls sit below it like a margin note. */
+:root{
+  --desk:#2a1d14; --desk-hi:#3a2a1d; --paper:#f3ead6; --paper-edge:#e2d4b4; --rule:rgba(92,120,140,.22);
+  --ink:#2a1f16; --label:#cdb98f; --label-dim:#a8936b; --field:#f8f1e1; --accent:#1f3a2e;
+  --display:"IM Fell English SC","IM Fell English",Georgia,serif; --body:"IM Fell English",Georgia,serif; --terminal:"VT323",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{margin:0;background:var(--desk);background-image:repeating-linear-gradient(92deg,rgba(255,255,255,.018) 0 2px,transparent 2px 9px),radial-gradient(ellipse at 50% 30%,var(--desk-hi),var(--desk) 70%);color:var(--label);font-family:var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 40px;box-sizing:border-box}
+main{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:22px;overflow-x:clip}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(20px,3.4vw,26px);letter-spacing:.06em;margin:0;color:#ecdcb8;text-wrap:balance}
+header p{margin:0;font-style:italic;color:var(--label-dim);font-size:15px}
+.sheet{position:relative;background:var(--paper);border-radius:3px 6px 6px 3px;box-shadow:0 1px 0 var(--paper-edge) inset,0 18px 40px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);padding:28px 30px 34px 54px}
+.sheet::before{content:"";position:absolute;left:38px;top:0;bottom:0;width:1px;background:rgba(170,70,60,.35)}
+.rules{position:relative}
+#ink{display:block;width:100%}
+#quill{position:absolute;inset:-150px -40px -20px -60px;width:calc(100% + 100px);height:calc(100% + 170px);pointer-events:none}
+.margin{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.margin label{font-family:var(--display);letter-spacing:.06em;font-size:15px;color:var(--label)}
+.field{display:flex;align-items:center;gap:6px;background:var(--field);border-radius:3px;padding:2px 10px;box-shadow:0 0 0 1px rgba(0,0,0,.25) inset}
+.field span{font-family:var(--terminal);font-size:22px;color:var(--accent)}
+#name{font-family:var(--terminal);font-size:22px;color:var(--accent);background:transparent;border:0;outline:0;width:12ch;padding:4px 0}
+.field:focus-within{box-shadow:0 0 0 2px #c9a35a}
+button{font-family:var(--terminal);font-size:22px;background:var(--accent);color:var(--field);border:0;border-radius:3px;padding:5px 14px;cursor:pointer}
+button:hover{background:#2b5040}
+button:focus-visible{outline:2px solid #c9a35a;outline-offset:2px}
+footer{font-size:15px;line-height:1.5;color:var(--label-dim);max-width:62ch}
+footer a{color:var(--label)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:520px){.sheet{padding:22px 16px 26px 30px}.sheet::before{left:20px}}
+/* film mode (tools/render.mjs): no controls, the sheet centred; vertical for 9:16 */
+body.film{display:flex;align-items:center;min-height:100%;padding-block:0}
+body.film main{max-width:1000px;width:100%;gap:26px}
+body.film #form{display:none}
+body.film footer{max-width:none;font-size:16px}
+body.film.vertical main{gap:34px}
+body.film.vertical h1{font-size:30px}
+body.film.vertical header p,body.film.vertical footer{font-size:19px}
+</style>
+
+<main>
+  <header>
+    <h1>The Enchanted Notebook</h1>
+    <p>a note, written for whoever opens this page</p>
+  </header>
+  <div class="sheet">
+    <div class="rules" id="rules">
+      <canvas id="ink" aria-hidden="true"></canvas>
+      <canvas id="quill" aria-hidden="true"></canvas>
+    </div>
+    <p class="sr-only" id="said" aria-live="polite"></p>
+  </div>
+  <form class="margin" id="form" autocomplete="off">
+    <label for="name">Who's reading?</label>
+    <div class="field"><span aria-hidden="true">&gt;</span><input id="name" name="name" maxlength="24" placeholder="reader" spellcheck="false"></div>
+    <button type="submit" id="again">write it again</button>
+  </form>
+  <footer>The quill draws every letter stroke by stroke in Hershey Script, the same hand it uses to answer questions in the <a href="https://enchantednotebook.com" target="_blank" rel="noopener">Enchanted Notebook</a> and on Future Radio. Nothing here is a font; each line is ink, laid out before the pen moves so it never runs off the page.</footer>
+</main>
+
+<script type="application/json" id="glyphs">__GLYPHS__</script>
+<script type="module">
+__QUILL__
+
+// Everything a renderer or an embedding page may change, through window.QUILL_CONFIG (set before this script runs).
+//   message  the text; {name} is replaced with the reader's name. Lines break at \n and wrap to the sheet.
+//   name     who it greets when no one has typed a name ("reader")
+//   ink      ink colour; seconds: writing time (default: about 0.42 s a word, at least 5 s)
+//   film     true: no controls, no clock of its own; the renderer calls window.__step(ms) once per frame
+//   vertical true with film: framing for 9:16
+const CFG = Object.assign({
+  message: 'Hello, {name}.\nI started writing this the moment you arrived, so the ink is still wet.\n— the quill',
+  name: 'reader', ink: '#2a1f16', seconds: null, film: false, vertical: false,
+}, window.QUILL_CONFIG || {});
+
+setGlyphs(JSON.parse(document.getElementById('glyphs').textContent));
+const ink = document.getElementById('ink'), qc = document.getElementById('quill'), rules = document.getElementById('rules');
+const nameIn = document.getElementById('name'), said = document.getElementById('said');
+const still = !CFG.film && matchMedia('(prefers-reduced-motion: reduce)').matches;
+// the glyph set covers Latin letters and common punctuation; anything else is dropped from a typed name
+const cleanName = s => (s || '').replace(/[^A-Za-z .'\-]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24);
+const message = () => CFG.message.replace(/\{name\}/g, cleanName(nameIn.value) || CFG.name);
+
+let wr = null, t0 = 0, M = null, Q = { tip: null, ang: .95, lifted: 0, glow: 0 };
+// 9:16 film gets larger lettering: the sheet is the whole picture
+const tall = CFG.film && CFG.vertical;
+function metrics() { const w = rules.clientWidth, size = Math.max(.78, Math.min(tall ? 1.85 : 1.35, w / (tall ? 360 : 520))); return { w, size, lineH: Math.round(size * 44), y0: Math.round(size * 40) }; }
+function sizeCanvas(c, w, h) { const dpr = Math.min(2, devicePixelRatio || 1); c.style.width = w + 'px'; c.style.height = h + 'px'; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
+function write(restart = true) {
+  M = metrics(); const text = message();
+  const lay = layoutScript(text, { width: M.w, size: M.size, lineH: M.lineH, paraGap: 0, x0: 2, y0: M.y0 });
+  const h = lay.height + Math.round(M.size * 14); sizeCanvas(ink, M.w, h); sizeCanvas(qc, M.w + 100, h + 170);
+  rules.style.backgroundImage = `repeating-linear-gradient(to bottom, transparent 0 ${M.lineH - 1}px, var(--rule) ${M.lineH - 1}px ${M.lineH}px)`;
+  rules.style.backgroundPosition = `0 ${M.y0 + Math.round(M.size * 4) - M.lineH + 1}px`;
+  const words = text.replace(/\n/g, ' ').split(/\s+/).length;
+  wr = new Writer(ink, lay, { dur: still ? .001 : (CFG.seconds || Math.max(5, words * .42)), width: Math.max(1.4, 1.9 * M.size), ink: CFG.ink });
+  if (restart) { t0 = CFG.film ? 700 : performance.now() + (still ? 0 : 600); said.textContent = text.replace(/\n/g, ' '); }
+}
+const rest = () => [M.w - 34 * M.size, ink.clientHeight - 8];
+/** Draw the frame at clock time `now` (ms). Returns whether the nib touches the paper, and whether the note is done. */
+function frame(now) {
+  const u = Math.max(0, (now - t0) / 1000), r = wr.draw(u);
+  const writing = now >= t0 && !r.done && r.tip;
+  const goal = writing ? r.tip : rest();
+  Q.tip = Q.tip ? [Q.tip[0] + (goal[0] - Q.tip[0]) * (writing ? .6 : .1), Q.tip[1] + (goal[1] - Q.tip[1]) * (writing ? .6 : .1)] : goal;
+  Q.ang += ((writing ? .55 : .95) - Q.ang) * (writing ? .2 : .1);
+  Q.lifted += ((writing ? (r.touching ? 0 : 6) : 0) - Q.lifted) * .3;
+  Q.glow += ((writing ? 1 : 0) - Q.glow) * .1;
+  const g = qc.getContext('2d'), dpr = qc.width / qc.clientWidth || 1;
+  g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, qc.clientWidth, qc.clientHeight);
+  drawQuill(g, [Q.tip[0] + 60, Q.tip[1] + 150], Q.ang, { lifted: Q.lifted, glow: Q.glow, scale: Math.max(.9, M.size) });
+  return { touching: !!(writing && r.touching), done: !!r.done, seconds: wr.total };
+}
+document.getElementById('form').addEventListener('submit', e => { e.preventDefault(); Q.tip = null; write(true); });
+let lastW = 0; new ResizeObserver(() => { const w = rules.clientWidth; if (w && Math.abs(w - lastW) > 2) { lastW = w; const keep = t0; write(false); t0 = keep; } }).observe(rules);
+const loop = now => { frame(now); requestAnimationFrame(loop); };
+const start = () => {
+  if (CFG.film) { document.body.classList.add('film'); if (CFG.vertical) document.body.classList.add('vertical'); write(true); window.__step = frame; window.__ready = true; return; }
+  write(true); requestAnimationFrame(loop);
+};
+document.fonts && document.fonts.ready ? document.fonts.ready.then(start) : start();
+</script>
