@@ -43,4 +43,4 @@ assets/     nib.mp3
 test/       quill.test.mjs
 ```
 
-See `NOTICE.md` for glyph, sound and font credits. This repo doesn't have a licence yet.
+Released under [CC0 1.0](LICENSE): no rights reserved. `NOTICE.md` credits the glyph data (Hershey fonts, public domain, via the MIT-licensed hersheytext project, whose notice travels with `quill/glyphs.json`), the nib sound and the demo's fonts.
